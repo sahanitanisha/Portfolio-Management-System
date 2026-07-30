@@ -95,7 +95,7 @@
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>7.3</version>
+            <version>9.0</version>
         </dependency>
         <!-- Caching abstraction + Redis backend (prod); dev/tests use an in-memory simple cache -->
         <dependency>
