@@ -1,0 +1,37 @@
+name: Dependency Check
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"   # weekly, Monday 06:00 UTC
+  workflow_dispatch:
+
+jobs:
+  owasp:
+    name: OWASP Dependency-Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: wells-fargo-task-2-flow
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: maven
+
+      # Report-only: surfaces known CVEs without blocking. Dependabot drives remediation.
+      # An NVD API key (repo secret NVD_API_KEY) speeds up the database update.
+      - name: Run OWASP Dependency-Check
+        continue-on-error: true
+        run: ./mvnw -B -ntp -Psecurity dependency-check:check -DnvdApiKey=${{ secrets.NVD_API_KEY }}
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-check-report
+          path: wells-fargo-task-2-flow/target/dependency-check-report.*

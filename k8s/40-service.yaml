@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pms-app
+  namespace: portfolio
+  labels:
+    app: pms
+spec:
+  type: ClusterIP
+  selector:
+    app: pms
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+# The management port (9090) is intentionally NOT exposed by this Service. It is
+# reachable only inside the namespace and scraped via the pod annotations above,
+# keeping operational endpoints off the public/API surface.

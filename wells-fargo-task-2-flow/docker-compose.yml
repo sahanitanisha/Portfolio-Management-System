@@ -1,0 +1,61 @@
+# One-command local production-like stack: application + PostgreSQL + Redis.
+#   docker compose up --build
+# The app runs the `prod` profile: Flyway migrates the schema, Hibernate validates
+# it, FX rates are cached in Redis, and data persists in PostgreSQL.
+name: portfolio-management-system
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: portfolio
+      POSTGRES_PASSWORD: portfolio
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portfolio -d portfolio"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  app:
+    build: .
+    image: portfolio-management-system:latest
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      JDBC_URL: jdbc:postgresql://postgres:5432/portfolio
+      DB_USERNAME: portfolio
+      DB_PASSWORD: portfolio
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      # JWT uses an ephemeral RSA key pair in this demo stack (no keys supplied);
+      # set APP_SECURITY_JWT_PRIVATE_KEY / _PUBLIC_KEY (Base64 DER) for stable tokens.
+      BOOTSTRAP_ADMIN_USERNAME: ${BOOTSTRAP_ADMIN_USERNAME:-admin}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-admin12345}
+      # Disable trace export in the demo stack (no collector). To view traces, run an
+      # OTLP collector (e.g. Jaeger) and set MANAGEMENT_TRACING_SAMPLING_PROBABILITY=1.0
+      # and MANAGEMENT_OTLP_TRACING_ENDPOINT=http://<collector>:4318/v1/traces.
+      MANAGEMENT_TRACING_SAMPLING_PROBABILITY: "0.0"
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:

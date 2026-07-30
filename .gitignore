@@ -1,0 +1,28 @@
+# Maven build output
+target/
+build/
+
+# IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / local env / secrets
+*.log
+.env
+*.env
+
+# OWASP dependency-check cache
+**/dependency-check-data/
+
+# Note: the Maven wrapper jar (.mvn/wrapper/maven-wrapper.jar) is intentionally
+# committed so ./mvnw and the Docker build work after cloning.

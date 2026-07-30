@@ -1,0 +1,26 @@
+version: 2
+updates:
+  - package-ecosystem: "maven"
+    directory: "/wells-fargo-task-2-flow"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+    groups:
+      spring:
+        patterns:
+          - "org.springframework*"
+          - "io.micrometer*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "ci"
+  - package-ecosystem: "docker"
+    directory: "/wells-fargo-task-2-flow"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "docker"
